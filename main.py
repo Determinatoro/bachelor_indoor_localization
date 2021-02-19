@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 
 import numpy as np
@@ -9,12 +10,12 @@ from compute_f import split_ts_seq, compute_step_positions
 from io_f import read_data_file
 from visualize_f import visualize_trajectory, visualize_heatmap, save_figure_to_html
 
-floor_data_dir = './data/site1/F1'
+floor_data_dir = './data/B1'
 path_data_dir = floor_data_dir + '/path_data_files'
 floor_plan_filename = floor_data_dir + '/floor_image.png'
 floor_info_filename = floor_data_dir + '/floor_info.json'
 
-save_dir = './output/site1/F1'
+save_dir = './output/B1'
 path_image_save_dir = save_dir + '/path_images'
 step_position_image_save_dir = save_dir
 magn_image_save_dir = save_dir
@@ -169,8 +170,23 @@ def extract_wifi_count(mwi_datas):
 
     return wifi_counts
 
-
 if __name__ == "__main__":
+    path_filenames = list(Path(path_data_dir).resolve().glob("*.csv"))
+    for path_filename in path_filenames:
+        data = read_data_file(path_filename)
+"""
+    for i in data:
+        if not i.acce_x:
+            i.pop(i.acce_x)
+            i.pop(i.acce_x)
+"""
+
+    plt.lineplot(data.timestamp, data.acce_x)
+    plt.xlabel('Acceleration (hr)')
+    plt.ylabel('Position (km)')
+    plt.show()
+
+    """
     Path(path_image_save_dir).mkdir(parents=True, exist_ok=True)
     Path(magn_image_save_dir).mkdir(parents=True, exist_ok=True)
     Path(wifi_image_save_dir).mkdir(parents=True, exist_ok=True)
@@ -181,7 +197,6 @@ if __name__ == "__main__":
     width_meter = floor_info["map_info"]["width"]
     height_meter = floor_info["map_info"]["height"]
 
-    path_filenames = list(Path(path_data_dir).resolve().glob("*.txt"))
 
     # 1. visualize ground truth positions
     print('Visualizing ground truth positions...')
@@ -254,5 +269,5 @@ if __name__ == "__main__":
     html_filename = f'{wifi_count_image_save_dir}/wifi_count.html'
     html_filename = str(Path(html_filename).resolve())
     save_figure_to_html(fig, html_filename)
-
+    """
     print('fff')
