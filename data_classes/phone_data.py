@@ -1,5 +1,19 @@
 from dataclasses import dataclass
 
+import numpy as np
+
+
+@dataclass
+class Site:
+    site_id: int
+    paths: np.ndarray
+
+
+@dataclass
+class Path:
+    path_id: int
+    data: np.ndarray
+
 
 @dataclass
 class ReadData:
