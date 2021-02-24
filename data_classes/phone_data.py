@@ -4,15 +4,34 @@ import numpy as np
 
 
 @dataclass
-class Site:
-    site_id: int
-    paths: np.ndarray
+class Dataset:
+    def __init__(self, train_data, test_data):
+        self.train_data = train_data
+        self.test_data = test_data
+
+    train_data: list
+    test_data: list
 
 
 @dataclass
-class Path:
+class Site:
+    def __init__(self, site_id):
+        self.site_id = site_id
+        self.paths = []
+
+    site_id: int
+    paths: list
+
+
+@dataclass
+class BuildingPath:
+    def __init__(self, path_id):
+        self.path_id = path_id
+        self.data = []
+
     path_id: int
-    data: np.ndarray
+    data: list
+    floor: int
 
 
 @dataclass
