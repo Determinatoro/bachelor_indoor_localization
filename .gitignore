@@ -4,3 +4,13 @@
 
 # IntelliJ project files
 .idea
+
+# pycharm cache filer
+__pycache__/
+*.pyo
+
+# data
+archive/
+
+#virtual environments
+venv/
