@@ -9,8 +9,8 @@ def read_all_data_files(args_data):
     test_data_path = args_data.root_data_path + "/test"
     train_data_path = args_data.root_data_path + "/train"
     # returns a list of Path objects
-    test_path_filenames = get_files_in_folder(args_data.site_ids, test_data_path)
-    train_path_filenames = get_files_in_folder(args_data.site_ids, train_data_path)
+    test_path_filenames = get_files_in_folder(args_data.site_ids, test_data_path)[:1]
+    train_path_filenames = get_files_in_folder(args_data.site_ids, train_data_path)[:1]
 
     # array of sites
     test_sites = get_sites(args_data, test_path_filenames)
@@ -94,8 +94,63 @@ def read_data_file(data_filename):
     # Go through each CSV dictionary
     for dic in list(dict_reader):
         dic["timestamp"] = dic.pop('')
+        type_casting(dic, "timestamp", int)
+        type_casting(dic, "acce_x", float)
+        type_casting(dic, "acce_y", float)
+        type_casting(dic, "acce_z", float)
+        type_casting(dic, "acce_accuracy", float)
+        type_casting(dic, "acce_uncali_x", float)
+        type_casting(dic, "acce_uncali_y", float)
+        type_casting(dic, "acce_uncali_z", float)
+        type_casting(dic, "acce_bias_x", float)
+        type_casting(dic, "acce_bias_y", float)
+        type_casting(dic, "acce_bias_z", float)
+        type_casting(dic, "acce_uncali_accuracy", float)
+        type_casting(dic, "magn_x", float)
+        type_casting(dic, "magn_y", float)
+        type_casting(dic, "magn_z", float)
+        type_casting(dic, "magn_accuracy", float)
+        type_casting(dic, "magn_uncali_x", float)
+        type_casting(dic, "magn_uncali_y", float)
+        type_casting(dic, "magn_uncali_z", float)
+        type_casting(dic, "magn_bias_x", float)
+        type_casting(dic, "magn_bias_y", float)
+        type_casting(dic, "magn_bias_z", float)
+        type_casting(dic, "magn_uncali_accuracy", float)
+        type_casting(dic, "gyro_x", float)
+        type_casting(dic, "gyro_y", float)
+        type_casting(dic, "gyro_z", float)
+        type_casting(dic, "gyro_accuracy", float)
+        type_casting(dic, "gyro_uncali_x", float)
+        type_casting(dic, "gyro_uncali_y", float)
+        type_casting(dic, "gyro_uncali_z", float)
+        type_casting(dic, "gyro_bias_x", float)
+        type_casting(dic, "gyro_bias_y", float)
+        type_casting(dic, "gyro_bias_z", float)
+        type_casting(dic, "gyro_uncali_accuracy", float)
+        type_casting(dic, "ahrs_x", float)
+        type_casting(dic, "ahrs_y", float)
+        type_casting(dic, "ahrs_z", float)
+        type_casting(dic, "ahrs_accuracy", float)
+        type_casting(dic, "wifi_ssid", str)
+        type_casting(dic, "wifi_bssid", str)
+        type_casting(dic, "wifi_rssi", int)
+        type_casting(dic, "wifi_freq", int)
+        type_casting(dic, "wifi_ls_ts", float)
+        type_casting(dic, "uuid", str)
+        type_casting(dic, "majorid", str)
+        type_casting(dic, "minorid", str)
+        type_casting(dic, "txpow", str)
+        type_casting(dic, "beacon_rssi", int)
+        type_casting(dic, "distance", float)
+        type_casting(dic, "macaddr", str)
+        type_casting(dic, "unix_time", float)
+        type_casting(dic, "way_x", float)
+        type_casting(dic, "way_y", float)
+
         data = ReadData()
-        data.all_data = dic
+        data.values = dic
+
         """
         for key in dic.keys():
             attr = getattr(data, key)
@@ -112,3 +167,23 @@ def read_data_file(data_filename):
                 setattr(data, key, dic[key])"""
         all_data.append(data)
     return all_data
+
+
+def type_casting(dic, key, type):
+    if key not in dic:
+        dic[key] = None
+        return
+
+    value = dic.pop(key)
+
+    if value == "" or value == "nan":
+        dic[key] = None
+        return
+
+    if type == int:
+        dic[key] = int(value)
+    elif type == float:
+        dic[key] = float(value)
+    elif type == str:
+        dic[key] = str(value)
+    return

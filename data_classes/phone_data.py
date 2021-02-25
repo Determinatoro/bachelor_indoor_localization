@@ -32,13 +32,14 @@ class BuildingPath:
     path_id: int
     data: list
     floor: int
+    step_positions: np.ndarray
 
 
 @dataclass
 class ReadData:
     def __init__(self):
         pass
-    all_data : dict
+    values : dict
     """
     timestamp = 0
     acce_x = 0.0
