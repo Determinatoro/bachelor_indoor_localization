@@ -4,6 +4,7 @@ import scipy.signal as signal
 
 from data_classes.phone_data import ReadData
 
+
 def init_parameters_filter(sample_freq, warmup_data, cut_off_freq=2):
     order = 4
     filter_b, filter_a = signal.butter(order, cut_off_freq / (sample_freq / 2), 'low', False)
@@ -13,8 +14,8 @@ def init_parameters_filter(sample_freq, warmup_data, cut_off_freq=2):
 
     return filter_b, filter_a, filter_zf
 
-def plot_data(file_data):
 
+def plot_data(file_data):
     x_values = []
     y_values = []
     x = 0
@@ -24,7 +25,7 @@ def plot_data(file_data):
         x_values.append(x)
         x += 1
         acce_data = [data.acce_x, data.acce_y, data.acce_z]
-        acce_mag = np.sqrt(np.sum(d**2 for d in acce_data))
+        acce_mag = np.sqrt(np.sum(d ** 2 for d in acce_data))
         y_values.append(acce_mag)
 
     x_values_slice = x_values[:2000]

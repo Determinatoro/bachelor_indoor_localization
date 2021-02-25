@@ -38,7 +38,8 @@ class BuildingPath:
 class ReadData:
     def __init__(self):
         pass
-
+    all_data : dict
+    """
     timestamp = 0
     acce_x = 0.0
     acce_y = 0.0
@@ -91,4 +92,4 @@ class ReadData:
     macaddr = ""
     unix_time = 0.0
     way_x = 0.0
-    way_y = 0.0
+    way_y = 0.0"""

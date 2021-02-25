@@ -1,4 +1,5 @@
 import sys
+import time
 
 from utilities.args_util import parse_args
 from utilities.csv_util import read_data_file, read_all_data_files
@@ -14,7 +15,10 @@ def main(argv):
     # Read data from file
     file_data = read_all_data_files(args_data)
     # plot_data(file_data)
+    print("Reading data finished!")
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main(sys.argv[1:])
+    print("--- %s seconds ---" % (time.time() - start_time))

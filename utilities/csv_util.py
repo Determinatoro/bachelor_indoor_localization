@@ -9,14 +9,26 @@ def read_all_data_files(args_data):
     test_data_path = args_data.root_data_path + "/test"
     train_data_path = args_data.root_data_path + "/train"
     # returns a list of Path objects
-    test_path_filenames = list(Path(test_data_path).resolve().glob(args_data.site_ids[0] + "*.csv"))
-    train_path_filenames = list(Path(train_data_path).resolve().glob("*.csv"))
+    test_path_filenames = get_files_in_folder(args_data.site_ids, test_data_path)
+    train_path_filenames = get_files_in_folder(args_data.site_ids, train_data_path)
 
     # array of sites
     test_sites = get_sites(args_data, test_path_filenames)
     train_sites = get_sites(args_data, train_path_filenames)
 
     return Dataset(train_sites, test_sites)
+
+
+def get_files_in_folder(site_ids, data_path):
+    path_obj = Path(data_path).resolve()
+    if len(site_ids) == 0:
+        return list(path_obj.glob("*.csv"))
+
+    file_paths = []
+    for site_id in site_ids:
+        file_paths.extend(list(path_obj.glob(site_id + "*.csv")))
+
+    return file_paths
 
 
 def get_sites(args_data, path_filenames):
@@ -52,6 +64,7 @@ def get_sites(args_data, path_filenames):
         path.floor = floor_id
 
         site.paths.append(path)
+        print(file_path.name)
 
     return temp_sites
 
@@ -82,6 +95,8 @@ def read_data_file(data_filename):
     for dic in list(dict_reader):
         dic["timestamp"] = dic.pop('')
         data = ReadData()
+        data.all_data = dic
+        """
         for key in dic.keys():
             attr = getattr(data, key)
             t = type(attr)
@@ -90,13 +105,10 @@ def read_data_file(data_filename):
                 setattr(data, key, None)
                 continue
             if t == int:
-                try:
-                    setattr(data, key, int(value) if value != "" else None)
-                except:
-                    print("it no work")
+                setattr(data, key, int(value) if value != "" else None)
             elif t == float:
                 setattr(data, key, float(value) if value != "" else None)
             elif t == str:
-                setattr(data, key, dic[key])
+                setattr(data, key, dic[key])"""
         all_data.append(data)
     return all_data
