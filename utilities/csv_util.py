@@ -52,7 +52,7 @@ def get_files_in_folder(site_ids, data_path):
 
 def get_sites(args_data, path_filenames):
     """
-
+    returns a list of site objects
     :param args_data: data type ArgsData
     :param path_filenames: list of path objects
     :return: list of site objects
@@ -81,9 +81,6 @@ def get_sites(args_data, path_filenames):
         if length == 3:
             floor_id = floor_converter(split_file_name[1])
             path_id = split_file_name[2]
-        # stops if args_data has no site_id's OR the specific id is not in args_data
-        if len(args_data.site_ids) > 0 and site_id not in args_data.site_ids:
-            continue
 
         # inserts site id in list sites IF site_id IS NOT already in temp_sites
         sites = list(filter(lambda x: x.site_id == site_id, temp_sites))
@@ -223,9 +220,9 @@ def read_data_file(data_filename):
 def type_casting(dic, key, type):
     """
     type casts the value of dic[key] to type
-    :param dic:
-    :param key:
-    :param type:
+    :param dic: a line in the csv data file
+    :param key: a key to the column value
+    :param type: the type which the function typecasts the value to
     :return: nothing. changes recorded in dic
     """
     if key not in dic:
