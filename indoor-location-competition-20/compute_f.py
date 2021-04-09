@@ -72,20 +72,16 @@ def correct_positions(rel_positions, reference_positions):
     :param reference_positions:
     :return:
     """
-    timestamps = [x.values["timestamp"] for x in reference_positions]
-
-    rel_positions_list = split_ts_seq(rel_positions, timestamps)
-    if len(rel_positions_list) != len(reference_positions) - 1:
+    rel_positions_list = split_ts_seq(rel_positions, reference_positions[:, 0])
+    if len(rel_positions_list) != reference_positions.shape[0] - 1:
         # print(f'Rel positions list size: {len(rel_positions_list)}, ref positions size: {reference_positions.shape[0]}')
         del rel_positions_list[-1]
-    assert len(rel_positions_list) == len(reference_positions) - 1
+    assert len(rel_positions_list) == reference_positions.shape[0] - 1
 
     corrected_positions = np.zeros((0, 3))
     for i, rel_ps in enumerate(rel_positions_list):
-        start_position_dic = reference_positions[i].values
-        end_position_dic = reference_positions[i + 1].values
-        start_position = [start_position_dic["timestamp"], start_position_dic["way_x"], start_position_dic["way_y"]]
-        end_position = [start_position_dic["timestamp"], end_position_dic["way_x"], end_position_dic["way_y"]]
+        start_position = reference_positions[i]
+        end_position = reference_positions[i + 1]
         abs_ps = np.zeros(rel_ps.shape)
         abs_ps[:, 0] = rel_ps[:, 0]
         # abs_ps[:, 1:3] = rel_ps[:, 1:3] + start_position[1:3]
@@ -193,14 +189,14 @@ def get_orientation(R):
     return values
 
 
-def compute_steps(acce_values):
+def compute_steps(acce_datas):
     step_timestamps = np.array([])
     step_indexs = np.array([], dtype=int)
     step_acce_max_mins = np.zeros((0, 4))
     sample_freq = 50
-    window_size = 22
+    window_size = 22 # 22
     low_acce_mag = 0.6
-    step_criterion = 1
+    step_criterion = 3 # 1
     interval_threshold = 250
 
     acce_max = np.zeros((2,))
@@ -214,11 +210,10 @@ def compute_steps(acce_values):
     acce_mag_window = np.zeros((window_size, 1))
 
     # detect steps according to acceleration magnitudes
-    for i in range(len(acce_values)):
-        dic = acce_values[i].values
-        acce_data = [dic["timestamp"], dic["acce_x"], dic["acce_y"], dic["acce_z"]]
+    for i in np.arange(0, np.size(acce_datas, 0)):
+        acce_data = acce_datas[i, :]
 
-        acce_mag = np.sqrt(np.sum(np.asarray(acce_data[1:]) ** 2))
+        acce_mag = np.sqrt(np.sum(acce_data[1:] ** 2))
 
         acce_mag_filt, filter_zf = signal.lfilter(filter_b, filter_a, [acce_mag], zi=filter_zf)
         acce_mag_filt = acce_mag_filt[0]
@@ -320,13 +315,11 @@ def compute_stride_length(step_acce_max_mins):
     return stride_lengths
 
 
-def compute_headings(read_data):
-    headings = np.zeros((len(read_data), 2))
-
-    for i in range(len(read_data)):
-        dic = read_data[i].values
-        ahrs_data = [dic["timestamp"], dic["ahrs_x"], dic["ahrs_y"], dic["ahrs_z"]]
-        rot_mat = get_rotation_matrix_from_vector(np.asarray(ahrs_data[1:]))
+def compute_headings(ahrs_datas):
+    headings = np.zeros((np.size(ahrs_datas, 0), 2))
+    for i in np.arange(0, np.size(ahrs_datas, 0)):
+        ahrs_data = ahrs_datas[i, :]
+        rot_mat = get_rotation_matrix_from_vector(ahrs_data[1:])
         azimuth, pitch, roll = get_orientation(rot_mat)
         around_z = (-azimuth) % (2 * np.pi)
         headings[i, :] = ahrs_data[0], around_z
@@ -358,17 +351,12 @@ def compute_rel_positions(stride_lengths, step_headings):
     return rel_positions
 
 
-def compute_step_positions(building_path):
-
-    acce_values = list(filter(lambda x: x.values["acce_x"] is not None, building_path.data))
-
-    step_timestamps, step_indexs, step_acce_max_mins = compute_steps(acce_values)
-    headings = compute_headings(acce_values)
+def compute_step_positions(acce_datas, ahrs_datas, posi_datas):
+    step_timestamps, step_indexs, step_acce_max_mins = compute_steps(acce_datas)
+    headings = compute_headings(ahrs_datas)
     stride_lengths = compute_stride_length(step_acce_max_mins)
     step_headings = compute_step_heading(step_timestamps, headings)
     rel_positions = compute_rel_positions(stride_lengths, step_headings)
-
-    reference_positions = list(filter(lambda x: x.values["way_x"] is not None, building_path.data))
-    step_positions = correct_positions(rel_positions, reference_positions)
+    step_positions = correct_positions(rel_positions, posi_datas)
 
     return step_positions
