@@ -7,7 +7,7 @@ submissions_path = f'{input_path}/submissions'
 sample_submission_path = f'{competition_path}/sample_submission.csv'
 
 submission_1_path = f'{submissions_path}/submission_lstm_x_y_with_floor.csv'
-submission_2_path = f'{submissions_path}/submission_lstm_floor_pred_complete.csv'
+submission_2_path = f'{submissions_path}/submission_lstm_floor_pred_100_feats.csv'
 
 sample_subm = pd.read_csv(sample_submission_path,
                           index_col=0)

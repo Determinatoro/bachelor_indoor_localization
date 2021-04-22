@@ -26,7 +26,7 @@ from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 
 N_SPLITS = 10
 SEED = 2021
-NUM_FEATS = 20  # number of features that we use. there are 100 feats but we don't need to use all of them
+NUM_FEATS = 100  # number of features that we use. there are 100 feats but we don't need to use all of them
 base_path = '.'
 
 
@@ -128,32 +128,29 @@ data.reset_index(drop=True, inplace=True)
 ##################
 
 def create_fmodel(input_data):
-    # bssid feats
+    # BSSID feats
     input_dim = input_data[0].shape[1]
-
     input_embd_layer = L.Input(shape=(input_dim,))
     x1 = L.Embedding(wifi_bssids_size, 64)(input_embd_layer)
     x1 = L.Flatten()(x1)
 
-    # rssi feats
+    # RSSI feats
     input_dim = input_data[1].shape[1]
-
     input_layer = L.Input(input_dim, )
     x2 = L.BatchNormalization()(input_layer)
     x2 = L.Dense(NUM_FEATS * 64, activation='relu')(x2)
 
-    # site
+    # Site
     input_site_layer = L.Input(shape=(1,))
-    x3 = L.Embedding(site_count, 2)(input_site_layer)
+    x3 = L.Embedding(site_count, 1)(input_site_layer)
     x3 = L.Flatten()(x3)
 
-    # main stream
+    # Main stream
     x = L.Concatenate(axis=1)([x1, x3, x2])
 
     x = L.Reshape((1, -1))(x)
     x = L.BatchNormalization()(x)
-    mod1 = L.LSTM(256, dropout=0.4, recurrent_dropout=0.3, return_sequences=True, activation='tanh')
-    x = L.Bidirectional(mod1)(x)
+    x = L.Bidirectional(L.LSTM(256, dropout=0.4, recurrent_dropout=0.3, return_sequences=True, activation='tanh'))(x)
     x = L.Bidirectional(L.LSTM(32, dropout=0.4, return_sequences=False, activation='relu'))(x)
     x = L.BatchNormalization()(x)
     x = L.Dense(16, activation='tanh')(x)
@@ -163,8 +160,8 @@ def create_fmodel(input_data):
     model = M.Model([input_embd_layer, input_layer, input_site_layer],
                     [output_layer_1])
 
-    model.compile(optimizer=tf.optimizers.Adam(lr=0.001),
-                  loss=tf.keras.losses.CategoricalCrossentropy(), metrics=['mse', 'accuracy'])
+    model.compile(optimizer=tf.optimizers.Adam(),
+                  loss=tf.keras.losses.CategoricalCrossentropy(), metrics=['accuracy'])
 
     return model
 

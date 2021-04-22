@@ -104,7 +104,9 @@ lgb_params = {'objective': 'root_mean_squared_error',
 ##################
 
 predictions = list()
-total_xy_rmse_error = 0
+all_oof_x, all_oof_y = [], []
+all_data_x, all_data_y = [], []
+
 for n_files, file in enumerate(train_files):
     data = pd.read_csv(file, index_col=0)
     test_data = pd.read_csv(test_files[n_files], index_col=0)
@@ -173,13 +175,17 @@ for n_files, file in enumerate(train_files):
         print(f"fold {fold + 1} - XY_RMSE: {xy_rmse_error}")
         print("*+" * 40)
 
+    # Add data and predictions to lists for final validation
+    all_oof_x.extend(oof_x.tolist())
+    all_oof_y.extend(oof_y.tolist())
+    all_data_x.extend(data.loc[:, 'x'].tolist())
+    all_data_y.extend(data.loc[:, 'y'].tolist())
+
     # Calculate XY RMSE error for the validation sets
     xy_rmse_error = comp_metric_position_only(oof_x, oof_y, data.iloc[:, -4].to_numpy(), data.iloc[:, -3].to_numpy())
     print("*+" * 40)
     print(f"total folds: {fold + 1} - XY_RMSE: {xy_rmse_error}")
     print("*+" * 40)
-    # Add to total XY RMSE error
-    total_xy_rmse_error += xy_rmse_error
     # Add predictions to list
     preds_f_mode = stats.mode(preds_f_arr, axis=1)
     preds_f = preds_f_mode[0].astype(int).reshape(-1)
@@ -189,8 +195,12 @@ for n_files, file in enumerate(train_files):
     test_preds["floor"] = test_preds["floor"].astype(int)
     predictions.append(test_preds)
 
+# Calculate total RMSE score
+xy_score = comp_metric_position_only(np.asarray(all_oof_x), np.asarray(all_oof_y), np.asarray(all_data_x),
+                                     np.asarray(all_data_y))
+
 print("*+" * 40)
-print(f"total XY_RMSE: {total_xy_rmse_error / (n_files + 1)}")
+print(f"total XY_RMSE: {xy_score}")
 print("*+" * 40)
 
 ##################

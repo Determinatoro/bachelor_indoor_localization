@@ -32,7 +32,7 @@ from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, Early
 
 N_SPLITS = 10
 SEED = 2021
-NUM_FEATS = 50  # number of features that we use. there are 100 feats but we don't need to use all of them
+NUM_FEATS = 100  # number of features that we use. there are 100 feats but we don't need to use all of them
 base_path = '.'
 
 
@@ -152,14 +152,12 @@ set_seed(SEED)
 def create_model(input_data):
     # bssid feats
     input_dim = input_data[0].shape[1]
-
     input_embd_layer = L.Input(shape=(input_dim,))
     x1 = L.Embedding(wifi_bssids_size, 64)(input_embd_layer)
     x1 = L.Flatten()(x1)
 
     # rssi feats
     input_dim = input_data[1].shape[1]
-
     input_layer = L.Input(input_dim, )
     x2 = L.BatchNormalization()(input_layer)
     x2 = L.Dense(NUM_FEATS * 64, activation='relu')(x2)
@@ -178,19 +176,17 @@ def create_model(input_data):
 
     x = L.Reshape((1, -1))(x)
     x = L.BatchNormalization()(x)
-    # x = L.LSTM(128, dropout=0.3, recurrent_dropout=0.3, return_sequences=True, activation='relu')(x)
     x = L.LSTM(256, dropout=0.3, recurrent_dropout=0.3, return_sequences=True, activation='relu')(x)
     x = L.LSTM(16, dropout=0.1, return_sequences=False, activation='relu')(x)
 
     output_layer_1 = L.Dense(2, name='xy')(x)
-    # output_layer_2 = L.Dense(1, activation='softmax', name='floor')(x)
 
     model = M.Model([input_embd_layer, input_layer, input_site_layer],
                     [output_layer_1])
 
-    model.compile(optimizer=tf.optimizers.Adam(lr=0.001),
+    model.compile(optimizer=tf.optimizers.Adam(),
                   loss='mse', metrics=['mse'])
-
+    model.summary()
     return model
 
 
@@ -226,7 +222,7 @@ for fold, (trn_idx, val_idx) in enumerate(
     model = create_model(
         [x_train_set.loc[:, BSSID_FEATS], x_train_set.loc[:, RSSI_FEATS + ['floor']], x_train_set.loc[:, 'site_id']])
     # Train model
-    history = model.fit(
+    model.fit(
         [x_train_set.loc[:, BSSID_FEATS], x_train_set.loc[:, RSSI_FEATS + ['floor']], x_train_set.loc[:, 'site_id']],
         y_train,
         validation_data=(

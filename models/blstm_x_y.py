@@ -167,8 +167,8 @@ def create_model(input_data):
 
     x = L.Reshape((1, -1))(x)
     x = L.BatchNormalization()(x)
-    x = L.LSTM(128, dropout=0.3, recurrent_dropout=0.3, return_sequences=True, activation='relu')(x)
-    x = L.LSTM(16, dropout=0.1, return_sequences=False, activation='relu')(x)
+    x = L.Bidirectional(L.LSTM(128, dropout=0.3, recurrent_dropout=0.3, return_sequences=True, activation='relu'))(x)
+    x = L.Bidirectional(L.LSTM(16, dropout=0.1, return_sequences=False, activation='relu'))(x)
 
     output_layer_1 = L.Dense(2, name='xy')(x)
 
@@ -276,4 +276,4 @@ all_preds['floor'] = floor_predictions['floor'].values
 now = datetime.now()
 timestamp = datetime.timestamp(now)
 # Save submission
-all_preds.to_csv(f'submission_lstm_x_y_{timestamp}.csv')
+all_preds.to_csv(f'submission_blstm_x_y_{timestamp}.csv')
