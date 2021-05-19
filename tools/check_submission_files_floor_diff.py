@@ -6,8 +6,8 @@ submissions_path = f'{input_path}/submissions'
 
 sample_submission_path = f'{competition_path}/sample_submission.csv'
 
-submission_1_path = f'{submissions_path}/submission_lstm_x_y_with_floor.csv'
-submission_2_path = f'{submissions_path}/submission_lstm_floor_pred_100_feats.csv'
+submission_1_path = f'{submissions_path}/submission_lstm_floor_pred_old_ensure_same_floor_for_each_path.csv'
+submission_2_path = f'{submissions_path}/submission_99_floor_model.csv'
 
 sample_subm = pd.read_csv(sample_submission_path,
                           index_col=0)
@@ -41,3 +41,8 @@ for site_path_timestamp in site_path_timestamps:
 percentage = amount / len(site_path_timestamps) * 100
 
 print(f'difference: {amount}, total percentage: {percentage}')
+
+#subm1.index = subm2.index
+subm1 = subm1.reindex_like(subm2)
+subm1['floor'] = subm2['floor']
+subm1.to_csv(f'{submissions_path}/submission_floor_overwrite.csv')

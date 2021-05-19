@@ -142,7 +142,7 @@ def create_fmodel(input_data):
 
     # Site
     input_site_layer = L.Input(shape=(1,))
-    x3 = L.Embedding(site_count, 1)(input_site_layer)
+    x3 = L.Embedding(site_count, 2)(input_site_layer)
     x3 = L.Flatten()(x3)
 
     # Main stream
@@ -191,7 +191,7 @@ for fold, (trn_idx, val_idx) in enumerate(StratifiedKFold(n_splits=N_SPLITS, shu
                validation_data=(
                    [x_val_set.loc[:, BSSID_FEATS], x_val_set.loc[:, RSSI_FEATS], x_val_set.loc[:, 'site_id']],
                    y_val_set_f),
-               batch_size=128, epochs=100
+               batch_size=128, epochs=1000
                , shuffle=True
                , callbacks=[
             ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1, min_delta=1e-4, mode='min')

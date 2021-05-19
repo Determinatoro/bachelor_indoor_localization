@@ -4,7 +4,7 @@ import os
 
 base_path = '..'
 
-submission_path = f'{base_path}/input/submissions/submission_lstm_floor_pred.csv'
+submission_path = f'{base_path}/input/submissions/submission_lstm_floor_pred_100_feats.csv'
 
 subm = pd.read_csv(submission_path, index_col=0)
 test_data = pd.read_csv(submission_path)

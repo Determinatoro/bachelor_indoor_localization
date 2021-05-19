@@ -15,7 +15,7 @@ from io_f import read_data_file
 
 # In[3]:
 
-BASE_PATH = '.'
+BASE_PATH = '../models'
 INPUT_PATH = f'{BASE_PATH}/input/indoor-location-navigation'
 sub = pd.read_csv(f'{BASE_PATH}/input/submissions/submission_lstm_x_y_floor_60_feats.csv')
 
