@@ -10,7 +10,11 @@ __pycache__/
 *.pyo
 
 # data
-input/
+input/indoor-location-navigation/
+input/indoor-navigation-and-location-wifi-features/
+input/indoor-unified-wifi-ds/
+input/simple-99-accurate-floor-model/
+input/unified-ds-wifi-and-beacon/
 
 #virtual environments
 venv/
